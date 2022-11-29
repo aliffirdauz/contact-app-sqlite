@@ -42,12 +42,12 @@ export default function AddContact() {
 
     db.transaction(
       (tx) => {
-        tx.executeSql("insert into items (value, value2) values (?, ?)", [name, number]);
-        tx.executeSql("select * from items", [], (_, { rows }) =>
+        tx.executeSql("insert into user (value, value2) values (?, ?)", [name, number]);
+        tx.executeSql("select * from user", [], (_, { rows }) =>
           console.log(JSON.stringify(rows))
         );
       },
-      null,
+      null
     );
   };
 
@@ -62,9 +62,9 @@ export default function AddContact() {
           </Text>
         </View>
       ) : (
-        <View style={{ backgroundColor: 'f2f2f2', width:'100%', height:'100%' }}>
+        <View style={{ backgroundColor: 'f2f2f2', width: '100%', height: '100%' }}>
           <View style={{ flex: 1, alignItems: 'center', marginTop: 20, backgroundColor: 'white', margin: 20, borderRadius: 10 }}>
-            <Text style={styles.title}>Detail Contact</Text>
+            <Text style={styles.title}>Add Contact</Text>
             <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/512/64/64572.png' }} style={{ margin: 20, width: 200, height: 200 }} />
             <View style={styles.inputContainer}>
               <TextInput
@@ -106,11 +106,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-},
-inputContainer: {
+  },
+  inputContainer: {
     width: '80%'
-},
-input: {
+  },
+  input: {
     backgroundColor: 'white',
     paddingHorizontal: 15,
     paddingVertical: 10,
@@ -121,15 +121,15 @@ input: {
     alignItems: 'center',
     justifyContent: 'center',
 
-},
-buttonContainer: {
+  },
+  buttonContainer: {
     width: '30%',
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 40,
     flexDirection: 'row',
-},
-button: {
+  },
+  button: {
     backgroundColor: '#0782F9',
     width: '100%',
     padding: 15,
@@ -138,8 +138,8 @@ button: {
     marginLeft: 10,
     alignItems: 'center',
     justifyContent: 'center',
-},
-buttonimage: {
+  },
+  buttonimage: {
     backgroundColor: '#0782F9',
     width: '100%',
     paddingHorizontal: 15,
@@ -150,16 +150,16 @@ buttonimage: {
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-},
-buttonText: {
+  },
+  buttonText: {
     color: 'white',
     fontWeight: '700',
     fontSize: 16,
-},
-title: {
+  },
+  title: {
     marginTop: 20,
     fontSize: 38,
     textAlign: 'center',
     fontWeight: '700',
-},
+  },
 })

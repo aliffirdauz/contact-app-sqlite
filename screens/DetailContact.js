@@ -1,7 +1,8 @@
 import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 
-const DetailContact = ({ items }) => {
+const DetailContact = ({ route }) => {
+    const { items } = route.params
     const handleEdit = () => {
         if (fullName !== '' && number !== '') {
             alert('Saved');
@@ -12,7 +13,10 @@ const DetailContact = ({ items }) => {
             alert('Please fill all the fields.');
         }
     }
-    console.log(items)
+
+    useEffect(() => {
+        console.log(JSON.stringify(route.params.items))
+    }, [])
 
     return (
         <ScrollView style={{ backgroundColor: 'f2f2f2' }}>
@@ -22,13 +26,13 @@ const DetailContact = ({ items }) => {
                 <View style={styles.inputContainer}>
                     <TextInput
                         placeholder="Input Name"
-                        // value={items.value}
+                        value={items[0].value}
                         onChangeText={text => setFullName(text)}
                         style={styles.input}
                     />
                     <TextInput
                         placeholder="Input Number"
-                        // value={items.value2}
+                        value={items[0].value2}
                         onChangeText={text => setNumber(text)}
                         style={styles.input}
                     />

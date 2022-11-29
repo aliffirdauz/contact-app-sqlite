@@ -32,7 +32,6 @@ const db = openDatabase();
 export default function ListContact() {
     const navigation = useNavigation();
     const [items, setItems] = useState(null);
-    const [selected, setSelected] = useState(null);
     const [refreshing, setRefreshing] = useState(false);
 
     const wait = (timeout) => {
@@ -42,120 +41,121 @@ export default function ListContact() {
     const sendData = (id) => {
         db.transaction((tx) => {
             tx.executeSql(
-                `select * from items where id = ?;`,
+                `select * from user where id = ?;`,
                 [id],
-                (_, { rows: { _array } }) => setSelected(_array)
+                (_, { rows: { _array } }) => navigation.navigate("DetailContact", { items: _array })
             );
-        });
-        navigation.navigate("DetailContact", { items: selected });
-    }
+    });
+}
 
-    const onRefresh = useCallback(() => {
-        setRefreshing(true);
-        wait(2000).then(() => setRefreshing(false));
-        db.transaction((tx) => {
-            tx.executeSql(
-                `select * from items;`,
-                [],
-                (_, { rows: { _array } }) => setItems(_array)
-            );
-        });
-    }, []);
-
-    const del = (id) => {
-        db.transaction(
-            (tx) => {
-                tx.executeSql(`delete from items where id = ?;`, [id]);
-            },
-            null,
-            onRefresh
+const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    wait(2000).then(() => setRefreshing(false));
+    db.transaction((tx) => {
+        tx.executeSql(
+            `select * from user;`,
+            [],
+            (_, { rows: { _array } }) => setItems(_array)
         );
-    }
+    });
+}, []);
 
-    useEffect(() => {
-        db.transaction((tx) => {
-            tx.executeSql(
-                "create table if not exists items (id integer primary key not null, done int, value name, value2 text);"
-            );
-        });
-    }, []);
-
-    useEffect(() => {
-        db.transaction((tx) => {
-            tx.executeSql(
-                `select * from items;`,
-                [],
-                (_, { rows: { _array } }) => setItems(_array)
-            );
-        });
-    }, []);
-
-    return (
-        <View style={styles.container}>
-            {Platform.OS === "web" ? (
-                <View
-                    style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-                >
-                    <Text style={styles.heading}>
-                        Expo SQlite is not supported on web!
-                    </Text>
-                </View>
-            ) : (
-                <>
-                    <View style={styles.sectionContainer}>
-                        <TouchableOpacity
-                            onPress={() => {
-                                navigation.navigate("AddContact");
-                            }}
-                            style={[styles.button, { marginTop: 15 }]}
-                        >
-                            <Text style={styles.buttonText}>Add Contact</Text>
-                        </TouchableOpacity>
-                    </View>
-                    <ScrollView style={styles.listArea} refreshControl={
-                        <RefreshControl
-                            refreshing={refreshing}
-                            onRefresh={onRefresh}
-                        />
-                    }>
-                        {items ? (
-                            <View style={styles.sectionContainer}>
-                                <Text style={styles.sectionHeading}>Contact List</Text>
-                                {items.map(({ id, value, value2 }) => (
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            sendData(id)
-                                        }}
-                                    >
-                                        <View style={styles.container}>
-                                            <View style={{ flexDirection: 'row' }}>
-                                                <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/512/64/64572.png' }} style={styles.photo} />
-                                                <View style={styles.container_text}>
-                                                    <Text style={styles.title}>
-                                                        {value}
-                                                    </Text>
-                                                    <Text style={styles.description}>
-                                                        {value2}
-                                                    </Text>
-                                                </View>
-                                                <TouchableOpacity onPress={() => { del(id) }}>
-                                                    <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/512/9068/9068660.png' }} style={styles.photo} />
-                                                </TouchableOpacity>
-                                            </View>
-                                        </View>
-                                    </TouchableOpacity>
-                                ))}
-                            </View>
-                        ) : (
-                            <View style={styles.sectionContainer}>
-                                <Text style={styles.sectionHeading}>No Contact</Text>
-                            </View>
-                        )}
-                    </ScrollView>
-                </>
-            )}
-        </View>
+const del = (id) => {
+    db.transaction(
+        (tx) => {
+            tx.executeSql(`delete from user where id = ?;`, [id]);
+        },
+        null,
+        onRefresh
     );
+}
+
+useEffect(() => {
+    db.transaction((tx) => {
+        tx.executeSql(
+            "create table if not exists user (id integer primary key not null, value name, value2 text);"
+        );
+    });
+}, []);
+
+useEffect(() => {
+    setRefreshing(true);
+    wait(2000).then(() => setRefreshing(false));
+    db.transaction((tx) => {
+        tx.executeSql(
+            `select * from user;`,
+            [],
+            (_, { rows: { _array } }) => setItems(_array)
+        );
+    });
+}, []);
+
+return (
+    <View style={styles.container}>
+        {Platform.OS === "web" ? (
+            <View
+                style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+            >
+                <Text style={styles.heading}>
+                    Expo SQlite is not supported on web!
+                </Text>
+            </View>
+        ) : (
+            <>
+                <View style={styles.sectionContainer}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            navigation.navigate("AddContact");
+                        }}
+                        style={[styles.button, { marginTop: 15 }]}
+                    >
+                        <Text style={styles.buttonText}>Add Contact</Text>
+                    </TouchableOpacity>
+                </View>
+                <ScrollView style={styles.listArea} refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                    />
+                }>
+                    {items ? (
+                        <View style={styles.sectionContainer}>
+                            <Text style={styles.sectionHeading}>Contact List</Text>
+                            {items.map(({ id, value, value2 }) => (
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        sendData(id);
+                                    }}
+                                >
+                                    <View style={styles.container}>
+                                        <View style={{ flexDirection: 'row' }}>
+                                            <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/512/64/64572.png' }} style={styles.photo} />
+                                            <View style={styles.container_text}>
+                                                <Text style={styles.title}>
+                                                    {value}
+                                                </Text>
+                                                <Text style={styles.description}>
+                                                    {value2}
+                                                </Text>
+                                            </View>
+                                            <TouchableOpacity onPress={() => { del(id) }}>
+                                                <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/512/9068/9068660.png' }} style={styles.photo} />
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    ) : (
+                        <View style={styles.sectionContainer}>
+                            <Text style={styles.sectionHeading}>No Contact</Text>
+                        </View>
+                    )}
+                </ScrollView>
+            </>
+        )}
+    </View>
+);
 }
 
 const styles = StyleSheet.create({
