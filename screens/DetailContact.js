@@ -1,17 +1,58 @@
 import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
+import * as SQLite from "expo-sqlite";
+import { useNavigation } from '@react-navigation/native';
+
+function openDatabase() {
+    if (Platform.OS === "web") {
+        return {
+            transaction: () => {
+                return {
+                    executeSql: () => { },
+                };
+            },
+        };
+    }
+
+    const db = SQLite.openDatabase("contact.db");
+    return db;
+}
+
+const db = openDatabase();
 
 const DetailContact = ({ route }) => {
+    const [name, setName] = useState(null)
+    const [number, setNumber] = useState(null)
     const { items } = route.params
-    const handleEdit = () => {
-        if (fullName !== '' && number !== '') {
-            alert('Saved');
-            console.warn('Full Name:', fullName);
-            console.warn('Address:', number);
+    const [refreshing, setRefreshing] = useState(false);
+    
+    const navigation = useNavigation();
+
+    const wait = (timeout) => {
+        return new Promise(resolve => setTimeout(resolve, timeout));
+    }
+    
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        wait(2000).then(() => setRefreshing(false));
+    }, []);
+
+    const update = (id) => {
+        // is text empty?
+        if (name === null || name === "") {
+            return false;
         }
-        else {
-            alert('Please fill all the fields.');
+        if (number === null || number === "") {
+            return false;
         }
+        db.transaction(
+            (tx) => {
+                tx.executeSql(`update user set value = ?, value2 = ? where id = ?;`, [name, number, id]);
+            },
+            null,
+            onRefresh
+        );
+        navigation.navigate("ListContact");
     }
 
     useEffect(() => {
@@ -26,20 +67,22 @@ const DetailContact = ({ route }) => {
                 <View style={styles.inputContainer}>
                     <TextInput
                         placeholder="Input Name"
-                        value={items[0].value}
-                        onChangeText={text => setFullName(text)}
+                        defaultValue={items[0].value}
+                        onChangeText={text => setName(text)}
                         style={styles.input}
                     />
                     <TextInput
                         placeholder="Input Number"
-                        value={items[0].value2}
+                        defaultValue={items[0].value2}
                         onChangeText={text => setNumber(text)}
                         style={styles.input}
                     />
                 </View>
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity
-                        onPress={handleEdit}
+                        onPress={() => {
+                            update(items[0].id)
+                        }}
                         style={[styles.button, { width: 100, marginTop: 20 }]}
                     >
                         <Text style={styles.buttonText}>Save</Text>
