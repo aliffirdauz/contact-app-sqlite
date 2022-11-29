@@ -25,13 +25,13 @@ const DetailContact = ({ route }) => {
     const [number, setNumber] = useState(null)
     const { items } = route.params
     const [refreshing, setRefreshing] = useState(false);
-    
+
     const navigation = useNavigation();
 
     const wait = (timeout) => {
         return new Promise(resolve => setTimeout(resolve, timeout));
     }
-    
+
     const onRefresh = useCallback(() => {
         setRefreshing(true);
         wait(2000).then(() => setRefreshing(false));
@@ -39,20 +39,52 @@ const DetailContact = ({ route }) => {
 
     const update = (id) => {
         // is text empty?
+        if ((name === null || name === "") && (number === null || number === "")) {
+            return false;
+        }
         if (name === null || name === "") {
-            return false;
+            db.transaction(
+                (tx) => {
+                    tx.executeSql(`update user set value = ?, value2 = ? where id = ?;`, [items[0].value, number, id]);
+                },
+                null,
+                onRefresh
+            );
+            navigation.navigate("Contact List");
+        } else if (number === null || number === "") {
+            db.transaction(
+                (tx) => {
+                    tx.executeSql(`update user set value = ?, value2 = ? where id = ?;`, [name, items[0].value2, id]);
+                },
+                null,
+                onRefresh
+            );
+            navigation.navigate("Contact List");
+        } else {
+            db.transaction(
+                (tx) => {
+                    tx.executeSql(`update user set value = ?, value2 = ? where id = ?;`, [name, number, id]);
+                },
+                null,
+                onRefresh
+            );
+            navigation.navigate("Contact List");
         }
-        if (number === null || number === "") {
-            return false;
+    }
+
+    const onChanged = (text) => {
+        let newText = '';
+        let numbers = '0123456789';
+
+        for (var i = 0; i < text.length; i++) {
+            if (numbers.indexOf(text[i]) > -1) {
+                newText = newText + text[i];
+            }
+            else {
+                alert("please enter numbers only");
+            }
         }
-        db.transaction(
-            (tx) => {
-                tx.executeSql(`update user set value = ?, value2 = ? where id = ?;`, [name, number, id]);
-            },
-            null,
-            onRefresh
-        );
-        navigation.navigate("ListContact");
+        setNumber(newText);
     }
 
     useEffect(() => {
@@ -60,9 +92,8 @@ const DetailContact = ({ route }) => {
     }, [])
 
     return (
-        <ScrollView style={{ backgroundColor: 'f2f2f2' }}>
-            <View style={{ flex: 1, alignItems: 'center', marginTop: 20, backgroundColor: 'white', margin: 20, borderRadius: 10, minHeight: 550 }}>
-                <Text style={styles.title}>Detail Contact</Text>
+        <View style={{ backgroundColor: '#BCBDF1', width: '100%', height: '100%' }}>
+            <View style={{ flex: 1, alignItems: 'center', marginTop: 20, backgroundColor: '#F1BCD8', margin: 20, borderRadius: 10, justifyContent:'center' }}>
                 <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/512/64/64572.png' }} style={{ margin: 20, width: 200, height: 200 }} />
                 <View style={styles.inputContainer}>
                     <TextInput
@@ -72,10 +103,12 @@ const DetailContact = ({ route }) => {
                         style={styles.input}
                     />
                     <TextInput
+                        keyboardType='numeric'
                         placeholder="Input Number"
                         defaultValue={items[0].value2}
-                        onChangeText={text => setNumber(text)}
+                        onChangeText={text => onChanged(text)}
                         style={styles.input}
+                        maxLength={13}
                     />
                 </View>
                 <View style={styles.buttonContainer}>
@@ -89,7 +122,7 @@ const DetailContact = ({ route }) => {
                     </TouchableOpacity>
                 </View>
             </View>
-        </ScrollView>
+        </View>
     )
 }
 
@@ -124,7 +157,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     button: {
-        backgroundColor: '#0782F9',
+        backgroundColor: '#F1F0BC',
         width: '100%',
         padding: 15,
         borderRadius: 10,
@@ -146,7 +179,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     buttonText: {
-        color: 'white',
+        color: 'black',
         fontWeight: '700',
         fontSize: 16,
     },

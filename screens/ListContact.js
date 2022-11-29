@@ -43,7 +43,7 @@ export default function ListContact() {
             tx.executeSql(
                 `select * from user where id = ?;`,
                 [id],
-                (_, { rows: { _array } }) => navigation.navigate("DetailContact", { items: _array })
+                (_, { rows: { _array } }) => navigation.navigate("Detail Contact", { items: _array })
             );
         });
     }
@@ -105,7 +105,7 @@ export default function ListContact() {
                     <View style={styles.sectionContainer}>
                         <TouchableOpacity
                             onPress={() => {
-                                navigation.navigate("AddContact");
+                                navigation.navigate("Add Contact");
                             }}
                             style={[styles.button, { marginTop: 15 }]}
                         >
@@ -120,7 +120,6 @@ export default function ListContact() {
                     }>
                         {items ? (
                             <View style={styles.sectionContainer}>
-                                <Text style={styles.sectionHeading}>Contact List</Text>
                                 {items.map(({ id, value, value2 }) => (
                                     <TouchableOpacity
                                         onPress={() => {
@@ -167,7 +166,7 @@ const styles = StyleSheet.create({
         marginTop: 8,
         marginBottom: 8,
         borderRadius: 5,
-        backgroundColor: '#FFF',
+        backgroundColor: '#bcbdf1',
         elevation: 2,
     },
     heading: {
@@ -188,7 +187,7 @@ const styles = StyleSheet.create({
         padding: 8,
     },
     listArea: {
-        backgroundColor: "#f0f0f0",
+        backgroundColor: "#F1BCD8",
         flex: 1,
         paddingTop: 16,
     },
@@ -204,7 +203,7 @@ const styles = StyleSheet.create({
         alignSelf: "center",
     },
     button: {
-        backgroundColor: '#0782F9',
+        backgroundColor: '#F1F0BC',
         height: 48,
         padding: 15,
         borderRadius: 10,
@@ -212,7 +211,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     buttonText: {
-        color: 'white',
+        color: 'black',
         fontWeight: '700',
         fontSize: 16,
     },

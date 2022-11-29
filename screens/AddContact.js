@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 import * as SQLite from "expo-sqlite";
+import { useNavigation } from "@react-navigation/native";
 
 function openDatabase() {
   if (Platform.OS === "web") {
@@ -31,6 +32,8 @@ export default function AddContact() {
   const [name, setName] = useState(null);
   const [number, setNumber] = useState(null);
 
+  const navigation = useNavigation();
+
   const add = (name, number) => {
     // is text empty?
     if (name === null || name === "") {
@@ -49,7 +52,23 @@ export default function AddContact() {
       },
       null
     );
+    navigation.navigate("Contact List");
   };
+
+  const onChanged = (text) => {
+    let newText = '';
+    let numbers = '0123456789';
+
+    for (var i = 0; i < text.length; i++) {
+      if (numbers.indexOf(text[i]) > -1) {
+        newText = newText + text[i];
+      }
+      else {
+        alert("please enter numbers only");
+      }
+    }
+    setNumber(newText);
+  }
 
   return (
     <View style={styles.container}>
@@ -62,9 +81,8 @@ export default function AddContact() {
           </Text>
         </View>
       ) : (
-        <View style={{ backgroundColor: 'f2f2f2', width: '100%', height: '100%' }}>
-          <View style={{ flex: 1, alignItems: 'center', marginTop: 20, backgroundColor: 'white', margin: 20, borderRadius: 10 }}>
-            <Text style={styles.title}>Add Contact</Text>
+        <View style={{ backgroundColor: '#BCBDF1', width: '100%', height: '100%' }}>
+          <View style={{ flex: 1, alignItems: 'center', marginTop: 20, backgroundColor: '#F1BCD8', margin: 20, borderRadius: 10, justifyContent:'center' }}>
             <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/512/64/64572.png' }} style={{ margin: 20, width: 200, height: 200 }} />
             <View style={styles.inputContainer}>
               <TextInput
@@ -74,10 +92,12 @@ export default function AddContact() {
                 value={name}
               />
               <TextInput
-                onChangeText={(text) => setNumber(text)}
+                keyboardType='numeric'
+                onChangeText={(text) => onChanged(text)}
                 placeholder="Input Number"
                 style={styles.input}
                 value={number}
+                maxLength={13}
               />
             </View>
             <View style={styles.buttonContainer}>
@@ -130,7 +150,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   button: {
-    backgroundColor: '#0782F9',
+    backgroundColor: '#F1F0BC',
     width: '100%',
     padding: 15,
     borderRadius: 10,
@@ -152,7 +172,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonText: {
-    color: 'white',
+    color: 'black',
     fontWeight: '700',
     fontSize: 16,
   },
