@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import * as SQLite from "expo-sqlite";
 import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect } from '@react-navigation/native';
 
 function openDatabase() {
     if (Platform.OS === "web") {
@@ -78,17 +79,17 @@ export default function ListContact() {
         });
     }, []);
 
-    useEffect(() => {
-        setRefreshing(true);
-        wait(2000).then(() => setRefreshing(false));
-        db.transaction((tx) => {
-            tx.executeSql(
-                `select * from user;`,
-                [],
-                (_, { rows: { _array } }) => setItems(_array)
-            );
-        });
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    `select * from user;`,
+                    [],
+                    (_, { rows: { _array } }) => setItems(_array)
+                );
+            });
+        }, [])
+    );
 
     return (
         <View style={styles.container}>
